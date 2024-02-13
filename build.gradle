@@ -1,0 +1,77 @@
+buildscript {
+    ext {
+        springVersion = "3.1.5"
+    }
+}
+
+plugins {
+    id 'application'
+    id 'java'
+    id 'java-test-fixtures'
+    id 'org.springframework.boot' version "${springVersion}"
+    id 'io.spring.dependency-management' version '1.1.3'
+    id 'com.adarshr.test-logger' version '4.0.0'
+}
+
+allprojects {
+    apply {
+        plugin('application')
+        plugin('java')
+        plugin('java-test-fixtures')
+        plugin('com.adarshr.test-logger')
+    }
+
+    group "com.payhere.homework"
+    version = '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        sourceCompatibility = '17'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+    }
+
+    compileJava.options.encoding = 'UTF-8'
+}
+
+def apiProject = project(":payhere-api")
+def coreProject = project(":payhere-core")
+
+def springProjects = [apiProject, coreProject]
+
+configure(springProjects) {
+    apply {
+        plugin('org.springframework.boot')
+        plugin('io.spring.dependency-management')
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+        testFixturesImplementation("org.springframework.boot:spring-boot-starter-test")
+
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+    }
+}
+
+test {
+    testlogger {
+        theme 'standard-parallel' // task level
+    }
+}
