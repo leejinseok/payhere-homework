@@ -23,4 +23,5 @@ public class ShopOwner extends AuditingDomain {
     @Column
     private String password;
 
+
 }
