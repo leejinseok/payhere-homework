@@ -1,6 +1,7 @@
 package com.payhere.homework.core.db.domain.product;
 
 import com.payhere.homework.core.db.audit.AuditingDomain;
+import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,6 +54,10 @@ public class Product extends AuditingDomain {
     @Enumerated(EnumType.STRING)
     private ProductSize size;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_owner_id")
+    private ShopOwner shopOwner;
+
     public void updateName(final String name) {
         this.name = name;
     }
@@ -83,6 +88,10 @@ public class Product extends AuditingDomain {
 
     public void updateSize(final ProductSize size) {
         this.size = size;
+    }
+
+    public boolean doesShopOwnerOwnThisProduct(final Long shopOwnerId) {
+        return this.shopOwner.getId().equals(shopOwnerId);
     }
 
 }
