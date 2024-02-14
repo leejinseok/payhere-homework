@@ -1,7 +1,9 @@
 package com.payhere.homework.api.application.domain.product;
 
 import com.payhere.homework.api.application.config.ApiDbConfig;
+import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.presentation.product.dto.ProductRequest;
+import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import com.payhere.homework.core.db.domain.owner.ShopOwnerRepository;
 import com.payhere.homework.core.db.domain.product.Product;
 import com.payhere.homework.core.db.domain.product.ProductCategory;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles({"test"})
 @DataJpaTest
@@ -31,8 +34,8 @@ class ProductServiceTest {
 
     @Test
     void 상품등록() {
+        ShopOwner shopOwner = createSampleShopOwner();
         ProductService productService = new ProductService(productRepository, shopOwnerRepository);
-
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",
                 ProductCategory.COFFEE,
@@ -44,7 +47,7 @@ class ProductServiceTest {
                 ProductSize.SMALL
         );
 
-        Product save = productService.save(1L, saveRequest);
+        Product save = productService.save(shopOwner.getId(), saveRequest);
         assertThat(save.getId()).isNotNull();
         assertThat(save.getName()).isEqualTo(saveRequest.getName());
         assertThat(save.getBarcode()).isEqualTo(saveRequest.getBarcode());
@@ -55,8 +58,19 @@ class ProductServiceTest {
         productRepository.deleteById(save.getId());
     }
 
+    public ShopOwner createSampleShopOwner() {
+        return shopOwnerRepository.save(
+                ShopOwner.builder()
+                        .phoneNumber("01022223333")
+                        .password("password")
+                        .build()
+        );
+    }
+
     @Test
     void 상품수정() {
+        ShopOwner shopOwner = createSampleShopOwner();
+
         ProductService productService = new ProductService(productRepository, shopOwnerRepository);
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",
@@ -69,7 +83,7 @@ class ProductServiceTest {
                 ProductSize.SMALL
         );
 
-        Product save = productService.save(1L, saveRequest);
+        Product save = productService.save(shopOwner.getId(), saveRequest);
         ProductRequest updateRequest = ProductRequest.of(
                 "아메리카노",
                 ProductCategory.COFFEE,
@@ -81,13 +95,90 @@ class ProductServiceTest {
                 ProductSize.LARGE
         );
 
-        Product update = productService.update(1L, save.getId(), updateRequest);
+        Product update = productService.update(shopOwner.getId(), save.getId(), updateRequest);
         assertThat(update.getId()).isNotNull();
         assertThat(update.getName()).isEqualTo(updateRequest.getName());
         assertThat(update.getBarcode()).isEqualTo(updateRequest.getBarcode());
         assertThat(update.getPrice()).isEqualTo(updateRequest.getPrice());
         assertThat(update.getCostPrice()).isEqualTo(updateRequest.getCostPrice());
         assertThat(update.getExpiryDate()).isEqualTo(updateRequest.getExpiryDate());
+    }
+
+    @Test
+    void 상품수정_실패_권한없음() {
+        ShopOwner shopOwner = createSampleShopOwner();
+        ProductService productService = new ProductService(productRepository, shopOwnerRepository);
+
+        ProductRequest saveRequest = ProductRequest.of(
+                "에스프레소",
+                ProductCategory.COFFEE,
+                new BigDecimal(1500),
+                new BigDecimal(1000),
+                "에스프레소 입니다",
+                "0123456789",
+                LocalDate.now().plusDays(3),
+                ProductSize.SMALL
+        );
+
+        Product save = productService.save(shopOwner.getId(), saveRequest);
+        ProductRequest updateRequest = ProductRequest.of(
+                "아메리카노",
+                ProductCategory.COFFEE,
+                new BigDecimal(2000),
+                new BigDecimal(1500),
+                "아메리카노 입니다",
+                "1234567890",
+                LocalDate.now().plusDays(2),
+                ProductSize.LARGE
+        );
+
+        assertThrows(UnauthorizedException.class, () -> {
+            productService.update(2L, save.getId(), updateRequest);
+        });
+    }
+
+    @Test
+    void 상품삭제() {
+        ShopOwner shopOwner = createSampleShopOwner();
+        ProductService productService = new ProductService(productRepository, shopOwnerRepository);
+
+        ProductRequest saveRequest = ProductRequest.of(
+                "에스프레소",
+                ProductCategory.COFFEE,
+                new BigDecimal(1500),
+                new BigDecimal(1000),
+                "에스프레소 입니다",
+                "0123456789",
+                LocalDate.now().plusDays(3),
+                ProductSize.SMALL
+        );
+
+        Product save = productService.save(shopOwner.getId(), saveRequest);
+        productService.delete(shopOwner.getId(), save.getId());
+    }
+
+    @Test
+    void 상품삭제_실패_권한없음() {
+        ShopOwner shopOwner = createSampleShopOwner();
+        ProductService productService = new ProductService(productRepository, shopOwnerRepository);
+
+        ProductRequest saveRequest = ProductRequest.of(
+                "에스프레소",
+                ProductCategory.COFFEE,
+                new BigDecimal(1500),
+                new BigDecimal(1000),
+                "에스프레소 입니다",
+                "0123456789",
+                LocalDate.now().plusDays(3),
+                ProductSize.SMALL
+        );
+
+        Product save = productService.save(shopOwner.getId(), saveRequest);
+
+        Long shopOwnerIdNotHaveDeletePermission = shopOwner.getId() + 1;
+        assertThrows(UnauthorizedException.class, () -> {
+            productService.delete(shopOwnerIdNotHaveDeletePermission, save.getId());
+        });
     }
 
 

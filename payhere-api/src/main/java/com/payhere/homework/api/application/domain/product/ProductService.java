@@ -51,9 +51,13 @@ public class ProductService {
         return productRepository.save(newProduct);
     }
 
+    public Product findById(final Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new NotFoundException(NOT_EXIST_PRODUCT));
+    }
+
     @Transactional
     public Product update(final Long shopOwnerId, final Long productId, final ProductRequest request) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException(NOT_EXIST_PRODUCT));
+        Product product = findById(productId);
 
         if (!product.doesShopOwnerOwnThisProduct(shopOwnerId)) {
             throw new UnauthorizedException(DO_NOT_HAVE_UPDATE_PRODUCT_PERMISSION);
@@ -106,6 +110,13 @@ public class ProductService {
         }
 
         return product;
+    }
+
+    public void delete(final Long shopOwnerId, final Long productId) {
+        Product product = findById(productId);
+        if (!product.doesShopOwnerOwnThisProduct(shopOwnerId)) {
+            throw new UnauthorizedException(DO_NOT_HAVE_DELETE_PRODUCT_PERMISSION);
+        }
     }
 
     private boolean barcodeDuplicateCheck(final String barcode) {
