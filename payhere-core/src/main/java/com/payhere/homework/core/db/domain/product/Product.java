@@ -20,6 +20,9 @@ public class Product extends AuditingDomain {
     private Long id;
 
     @Column
+    private String name;
+
+    @Column
     private String category;
 
     @Column
@@ -27,9 +30,6 @@ public class Product extends AuditingDomain {
 
     @Column
     private BigDecimal costPrice;
-
-    @Column
-    private String name;
 
     @Column
     private String description;
