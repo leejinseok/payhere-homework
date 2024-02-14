@@ -1,21 +1,26 @@
 spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
   datasource:
     hikari:
-      jdbc-url: jdbc:h2:mem://localhost/~/payhere
-      driver-class-name: org.h2.Driver
-      username: sa
-      password:
+      jdbc-url: jdbc:mysql://localhost:3306/payhere?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: root
+      password: root
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
         format_sql: true
         show_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: create
-    generate-ddl: true
+      ddl-auto: validate
+    defer-datasource-initialization: true
 
 ---
 spring:
