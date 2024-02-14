@@ -2,6 +2,7 @@ package com.payhere.homework.api.presentation.common;
 
 import com.payhere.homework.api.application.exception.BadRequestException;
 import com.payhere.homework.api.application.exception.NotFoundException;
+import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.presentation.common.dto.ErrorResponse;
 import com.payhere.homework.api.presentation.common.dto.ValidationErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,12 @@ public class AdviceController {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(final NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.of(e.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(final UnauthorizedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ErrorResponse.of(e.getMessage()));
     }
 

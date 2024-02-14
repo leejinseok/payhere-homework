@@ -12,6 +12,7 @@ public class ExceptionConstants {
     public static final String ALREADY_EXIST_PRODUCT = "이미 존재하는 상품입니다.";
 
     public static final String NOT_EXIST_SHOP_OWNER = "존재하지 않는 사용자입니다.";
+    public static final String LOGIN_FAILED = "로그인에 실패하였습니다.";
 
 
 }

@@ -1,6 +1,6 @@
 package com.payhere.homework.api.application.domain.auth;
 
-import com.payhere.homework.api.application.exception.NotFoundException;
+import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.presentation.auth.dto.LoginRequest;
 import com.payhere.homework.api.presentation.auth.dto.SignUpRequest;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static com.payhere.homework.api.application.constants.ExceptionConstants.LOGIN_FAILED;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class AuthService {
 
         Optional<ShopOwner> shopOwner = shopOwnerRepository.findByPhoneNumberAndPassword(phoneNumber, encode);
         if (shopOwner.isEmpty()) {
-            throw new NotFoundException("로그인에 실패하였습니다.");
+            throw new UnauthorizedException(LOGIN_FAILED);
         }
 
         return shopOwner.get();
