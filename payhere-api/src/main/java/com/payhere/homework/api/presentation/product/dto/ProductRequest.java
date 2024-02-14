@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor(staticName = "of")
-public class ProductSaveRequest {
+public class ProductRequest {
 
     @NotEmpty(message = "상품명을 필수입니다")
     private String name;

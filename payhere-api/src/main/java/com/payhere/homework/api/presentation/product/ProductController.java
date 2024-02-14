@@ -1,7 +1,7 @@
 package com.payhere.homework.api.presentation.product;
 
 import com.payhere.homework.api.application.domain.product.ProductService;
-import com.payhere.homework.api.presentation.product.dto.ProductSaveRequest;
+import com.payhere.homework.api.presentation.product.dto.ProductRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public void saveProduct(@RequestBody @Valid ProductSaveRequest request) {
+    public void saveProduct(@RequestBody @Valid ProductRequest request) {
     }
 
 }
