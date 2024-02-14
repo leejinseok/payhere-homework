@@ -20,23 +20,24 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: validate
-    defer-datasource-initialization: true
-
----
-spring:
-  config:
-    activate:
-      on-profile: h2-console
-  datasource:
-    hikari:
-      jdbc-url: jdbc:h2:tcp://localhost/~/payhere
+    defer-datasource-initialization: false
 
 ---
 spring:
   config:
     activate:
       on-profile: test
-  datasource:
-    hikari:
-      jdbc-url: jdbc:h2:mem://localhost/~/payhere-test
 
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
