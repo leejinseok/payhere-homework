@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payhere.homework.api.application.config.ApiSecurityConfig;
 import com.payhere.homework.api.application.config.jwt.JwtConfig;
 import com.payhere.homework.api.application.domain.auth.AuthService;
+import com.payhere.homework.api.presentation.auth.dto.LoginRequest;
 import com.payhere.homework.api.presentation.auth.dto.SignUpRequest;
 import com.payhere.homework.api.presentation.common.dto.ValidationErrorResponse;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
@@ -16,6 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
+import static com.payhere.homework.api.application.constants.ValidationConstants.PASSWORD_MUST_NOT_NULL;
 import static com.payhere.homework.api.application.constants.ValidationConstants.PHONE_NUMBER_NOT_VALID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -59,6 +63,25 @@ class AuthControllerTest {
     }
 
     @Test
+    void 회원가입_실패_패스워드_공백() throws Exception {
+        SignUpRequest request = SignUpRequest.of("01011112222", "");
+        byte[] content = objectMapper.writeValueAsBytes(request);
+
+        ValidationErrorResponse errorResponse = new ValidationErrorResponse();
+        errorResponse.getErrors().add(PASSWORD_MUST_NOT_NULL);
+        String jsonErrorResponse = objectMapper.writeValueAsString(errorResponse);
+
+        mockMvc.perform(
+                        post("/api/v1/auth/shop-owner/sign-up")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(jsonErrorResponse));
+    }
+
+    @Test
     void 회원가입() throws Exception {
         SignUpRequest request = SignUpRequest.of("01011112222", "password");
         byte[] content = objectMapper.writeValueAsBytes(request);
@@ -68,6 +91,8 @@ class AuthControllerTest {
                 .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
+        saved.setCreatedAt(LocalDateTime.now());
+        saved.setLastModifiedAt(LocalDateTime.now());
 
         when(authService.signUp(any())).thenReturn(saved);
 
@@ -79,6 +104,42 @@ class AuthControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(saved.getId()))
-                .andExpect(jsonPath("$.phoneNumber").value(saved.getPhoneNumber()));
+                .andExpect(jsonPath("$.phoneNumber").value(saved.getPhoneNumber()))
+                .andExpect(jsonPath("$.createdAt").exists())
+                .andExpect(jsonPath("$.lastModifiedAt").exists());
     }
+
+    @Test
+    void 로그인() throws Exception {
+        LoginRequest request = LoginRequest.of("01011112222", "password");
+        byte[] content = objectMapper.writeValueAsBytes(request);
+
+        ShopOwner shopOwner = ShopOwner.builder()
+                .id(1L)
+                .phoneNumber(request.getPhoneNumber())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+
+        shopOwner.setCreatedAt(LocalDateTime.now());
+        shopOwner.setLastModifiedAt(LocalDateTime.now());
+
+        when(authService.login(any())).thenReturn(shopOwner);
+
+        mockMvc.perform(
+                        post("/api/v1/auth/shop-owner/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.shopOwner.id").value(shopOwner.getId()))
+                .andExpect(jsonPath("$.shopOwner.phoneNumber").value(shopOwner.getPhoneNumber()))
+                .andExpect(jsonPath("$.shopOwner.createdAt").exists())
+                .andExpect(jsonPath("$.shopOwner.lastModifiedAt").exists())
+                .andExpect(jsonPath("$.token.accessToken").exists())
+                .andExpect(jsonPath("$.token.refreshToken").exists());
+
+
+    }
+
 }

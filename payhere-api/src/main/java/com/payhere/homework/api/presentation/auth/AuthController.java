@@ -1,8 +1,9 @@
 package com.payhere.homework.api.presentation.auth;
 
+import com.payhere.homework.api.application.config.jwt.JwtProvider;
 import com.payhere.homework.api.application.domain.auth.AuthService;
-import com.payhere.homework.api.presentation.auth.dto.SignUpRequest;
-import com.payhere.homework.api.presentation.auth.dto.SignUpResponse;
+import com.payhere.homework.api.presentation.auth.dto.*;
+import com.payhere.homework.api.presentation.owner.dto.ShopOwnerResponse;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/shop-owner/sign-up")
     public ResponseEntity<SignUpResponse> signUp(@RequestBody @Valid final SignUpRequest request) {
@@ -29,5 +31,22 @@ public class AuthController {
                 .status(HttpStatus.CREATED)
                 .body(SignUpResponse.create(shopOwner));
     }
+
+    @PostMapping("/shop-owner/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid final LoginRequest request) {
+        ShopOwner shopOwner = authService.login(request);
+
+        String accessToken = jwtProvider.createToken(shopOwner);
+        String refreshToken = jwtProvider.createRefreshToken(shopOwner);
+        TokenResponse tokenResponse = TokenResponse.of(accessToken, refreshToken);
+
+        ShopOwnerResponse memberResponse = ShopOwnerResponse.create(shopOwner);
+        LoginResponse loginResponse = LoginResponse.of(memberResponse, tokenResponse);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(loginResponse);
+    }
+
 
 }
