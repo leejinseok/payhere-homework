@@ -112,11 +112,14 @@ public class ProductService {
         return product;
     }
 
+    @Transactional
     public void delete(final Long shopOwnerId, final Long productId) {
         Product product = findById(productId);
         if (!product.doesShopOwnerOwnThisProduct(shopOwnerId)) {
             throw new UnauthorizedException(DO_NOT_HAVE_DELETE_PRODUCT_PERMISSION);
         }
+
+        productRepository.delete(product);
     }
 
     private boolean barcodeDuplicateCheck(final String barcode) {

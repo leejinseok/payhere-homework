@@ -1,6 +1,7 @@
 package com.payhere.homework.api.application.domain.product;
 
 import com.payhere.homework.api.application.config.ApiDbConfig;
+import com.payhere.homework.api.application.exception.NotFoundException;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.presentation.product.dto.ProductRequest;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
@@ -155,6 +156,10 @@ class ProductServiceTest {
 
         Product save = productService.save(shopOwner.getId(), saveRequest);
         productService.delete(shopOwner.getId(), save.getId());
+
+        assertThrows(NotFoundException.class, () -> {
+            productService.findById(save.getId());
+        });
     }
 
     @Test
