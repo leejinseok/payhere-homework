@@ -6,6 +6,7 @@ import com.payhere.homework.api.application.config.jwt.JwtConfig;
 import com.payhere.homework.api.application.domain.auth.AuthService;
 import com.payhere.homework.api.presentation.auth.dto.LoginRequest;
 import com.payhere.homework.api.presentation.auth.dto.SignUpRequest;
+import com.payhere.homework.api.presentation.common.dto.ApiResponse;
 import com.payhere.homework.api.presentation.common.dto.ValidationErrorResponse;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -50,7 +52,13 @@ class AuthControllerTest {
 
         ValidationErrorResponse errorResponse = new ValidationErrorResponse();
         errorResponse.getErrors().add(PHONE_NUMBER_NOT_VALID);
-        String jsonErrorResponse = objectMapper.writeValueAsString(errorResponse);
+
+        ApiResponse<ValidationErrorResponse> apiResponse = new ApiResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                errorResponse,
+                null
+        );
+        String jsonErrorResponse = objectMapper.writeValueAsString(apiResponse);
 
         mockMvc.perform(
                         post("/api/v1/auth/shop-owner/sign-up")
@@ -69,7 +77,13 @@ class AuthControllerTest {
 
         ValidationErrorResponse errorResponse = new ValidationErrorResponse();
         errorResponse.getErrors().add(PASSWORD_MUST_NOT_NULL);
-        String jsonErrorResponse = objectMapper.writeValueAsString(errorResponse);
+        ApiResponse<ValidationErrorResponse> apiResponse = new ApiResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                errorResponse,
+                null
+        );
+        String jsonErrorResponse = objectMapper.writeValueAsString(apiResponse);
+
 
         mockMvc.perform(
                         post("/api/v1/auth/shop-owner/sign-up")
@@ -103,10 +117,10 @@ class AuthControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(saved.getId()))
-                .andExpect(jsonPath("$.phoneNumber").value(saved.getPhoneNumber()))
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.lastModifiedAt").exists());
+                .andExpect(jsonPath("$.data.id").value(saved.getId()))
+                .andExpect(jsonPath("$.data.phoneNumber").value(saved.getPhoneNumber()))
+                .andExpect(jsonPath("$.data.createdAt").exists())
+                .andExpect(jsonPath("$.data.lastModifiedAt").exists());
     }
 
     @Test
@@ -132,14 +146,12 @@ class AuthControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.shopOwner.id").value(shopOwner.getId()))
-                .andExpect(jsonPath("$.shopOwner.phoneNumber").value(shopOwner.getPhoneNumber()))
-                .andExpect(jsonPath("$.shopOwner.createdAt").exists())
-                .andExpect(jsonPath("$.shopOwner.lastModifiedAt").exists())
-                .andExpect(jsonPath("$.token.accessToken").exists())
-                .andExpect(jsonPath("$.token.refreshToken").exists());
-
-
+                .andExpect(jsonPath("$.data.shopOwner.id").value(shopOwner.getId()))
+                .andExpect(jsonPath("$.data.shopOwner.phoneNumber").value(shopOwner.getPhoneNumber()))
+                .andExpect(jsonPath("$.data.shopOwner.createdAt").exists())
+                .andExpect(jsonPath("$.data.shopOwner.lastModifiedAt").exists())
+                .andExpect(jsonPath("$.data.token.accessToken").exists())
+                .andExpect(jsonPath("$.data.token.refreshToken").exists());
     }
 
 }

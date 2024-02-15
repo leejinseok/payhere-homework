@@ -7,5 +7,7 @@ import java.util.Optional;
 public interface ShopOwnerRepository extends JpaRepository<ShopOwner, Long> {
 
     Optional<ShopOwner> findByPhoneNumberAndPassword(String phoneNumber, String password);
-    
+
+    Optional<ShopOwner> findByPhoneNumber(String phoneNumber);
+
 }

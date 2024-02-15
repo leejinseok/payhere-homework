@@ -3,6 +3,7 @@ package com.payhere.homework.api.presentation.auth;
 import com.payhere.homework.api.application.config.jwt.JwtProvider;
 import com.payhere.homework.api.application.domain.auth.AuthService;
 import com.payhere.homework.api.presentation.auth.dto.*;
+import com.payhere.homework.api.presentation.common.dto.ApiResponse;
 import com.payhere.homework.api.presentation.owner.dto.ShopOwnerResponse;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,15 +26,21 @@ public class AuthController {
     private final JwtProvider jwtProvider;
 
     @PostMapping("/shop-owner/sign-up")
-    public ResponseEntity<SignUpResponse> signUp(@RequestBody @Valid final SignUpRequest request) {
+    public ResponseEntity<ApiResponse<SignUpResponse>> signUp(@RequestBody @Valid final SignUpRequest request) {
         ShopOwner shopOwner = authService.signUp(request);
+
+        ApiResponse<SignUpResponse> response = new ApiResponse<>(
+                HttpStatus.CREATED,
+                SignUpResponse.create(shopOwner)
+        );
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(SignUpResponse.create(shopOwner));
+                .body(response);
     }
 
     @PostMapping("/shop-owner/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid final LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid final LoginRequest request) {
         ShopOwner shopOwner = authService.login(request);
 
         String accessToken = jwtProvider.createToken(shopOwner);
@@ -43,9 +50,14 @@ public class AuthController {
         ShopOwnerResponse memberResponse = ShopOwnerResponse.create(shopOwner);
         LoginResponse loginResponse = LoginResponse.of(memberResponse, tokenResponse);
 
+        ApiResponse<LoginResponse> body = new ApiResponse<>(
+                HttpStatus.OK,
+                loginResponse
+        );
+
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(loginResponse);
+                .body(body);
     }
 
 

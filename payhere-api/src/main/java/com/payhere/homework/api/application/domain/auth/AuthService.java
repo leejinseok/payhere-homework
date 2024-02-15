@@ -35,15 +35,17 @@ public class AuthService {
     public ShopOwner login(final LoginRequest request) {
         String phoneNumber = request.getPhoneNumber();
 
-        String password = request.getPassword();
-        String encode = passwordEncoder.encode(password);
-
-        Optional<ShopOwner> shopOwner = shopOwnerRepository.findByPhoneNumberAndPassword(phoneNumber, encode);
-        if (shopOwner.isEmpty()) {
+        Optional<ShopOwner> optional = shopOwnerRepository.findByPhoneNumber(phoneNumber);
+        if (optional.isEmpty()) {
             throw new UnauthorizedException(LOGIN_FAILED);
         }
 
-        return shopOwner.get();
+        ShopOwner shopOwner = optional.get();
+        if (!passwordEncoder.matches(request.getPassword(), shopOwner.getPassword())) {
+            throw new UnauthorizedException(LOGIN_FAILED);
+        }
+
+        return shopOwner;
     }
 
 }
