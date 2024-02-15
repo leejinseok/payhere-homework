@@ -33,6 +33,46 @@ class ProductServiceTest {
     @Autowired
     ShopOwnerRepository shopOwnerRepository;
 
+    public ShopOwner createSampleShopOwner() {
+        return shopOwnerRepository.save(
+                ShopOwner.builder()
+                        .phoneNumber("01022223333")
+                        .password("password")
+                        .build()
+        );
+    }
+
+    public ProductRequest createSampleProductRequest() {
+        return ProductRequest.of(
+                "에스프레소",
+                ProductCategory.COFFEE,
+                new BigDecimal(1500),
+                new BigDecimal(1000),
+                "에스프레소 입니다",
+                "0123456789",
+                LocalDate.now().plusDays(3),
+                ProductSize.SMALL
+        );
+    }
+
+    @Test
+    void 상품조회() {
+        ShopOwner shopOwner = createSampleShopOwner();
+        ProductRequest productRequest = createSampleProductRequest();
+
+        ProductService productService = new ProductService(productRepository, shopOwnerRepository);
+        Product save = productService.save(shopOwner.getId(), productRequest);
+
+        Product product = productService.findOne(shopOwner.getId(), save.getId());
+
+        assertThat(product.getId()).isNotNull();
+        assertThat(product.getName()).isEqualTo(productRequest.getName());
+        assertThat(product.getBarcode()).isEqualTo(productRequest.getBarcode());
+        assertThat(product.getPrice()).isEqualTo(productRequest.getPrice());
+        assertThat(product.getCostPrice()).isEqualTo(productRequest.getCostPrice());
+        assertThat(product.getExpiryDate()).isEqualTo(productRequest.getExpiryDate());
+    }
+
     @Test
     void 상품등록() {
         ShopOwner shopOwner = createSampleShopOwner();
@@ -59,14 +99,6 @@ class ProductServiceTest {
         productRepository.deleteById(save.getId());
     }
 
-    public ShopOwner createSampleShopOwner() {
-        return shopOwnerRepository.save(
-                ShopOwner.builder()
-                        .phoneNumber("01022223333")
-                        .password("password")
-                        .build()
-        );
-    }
 
     @Test
     void 상품수정() {

@@ -13,6 +13,7 @@ public class ExceptionConstants {
 
     public static final String NOT_EXIST_SHOP_OWNER = "존재하지 않는 사용자입니다.";
     public static final String LOGIN_FAILED = "로그인에 실패하였습니다.";
+    public static final String NO_PERMISSION_READ_PRODUCT = "해당 상품을 조회할 권한이 없습니다.";
 
 
 }

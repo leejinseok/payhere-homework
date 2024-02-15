@@ -1,6 +1,7 @@
 package com.payhere.homework.api.presentation.common;
 
 import com.payhere.homework.api.application.exception.BadRequestException;
+import com.payhere.homework.api.application.exception.NoPermissionException;
 import com.payhere.homework.api.application.exception.NotFoundException;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.presentation.common.dto.ApiResponse;
@@ -54,6 +55,19 @@ public class AdviceController {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(body);
+    }
+
+    @ExceptionHandler(NoPermissionException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleNoPermissionException(final NoPermissionException e) {
+        ApiResponse<ErrorResponse> body = new ApiResponse<>(
+                HttpStatus.FORBIDDEN.value(),
+                e.getMessage(),
+                null
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(body);
     }
 

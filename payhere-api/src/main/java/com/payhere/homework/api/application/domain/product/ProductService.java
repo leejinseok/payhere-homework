@@ -1,6 +1,7 @@
 package com.payhere.homework.api.application.domain.product;
 
 import com.payhere.homework.api.application.exception.DuplicateException;
+import com.payhere.homework.api.application.exception.NoPermissionException;
 import com.payhere.homework.api.application.exception.NotFoundException;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.presentation.product.dto.ProductRequest;
@@ -25,6 +26,15 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ShopOwnerRepository shopOwnerRepository;
+
+    @Transactional(readOnly = true)
+    public Product findOne(final Long shopOwnerId, final Long productId) {
+        Product product = findById(productId);
+        if (!product.doesShopOwnerOwnThisProduct(shopOwnerId)) {
+            throw new NoPermissionException(NO_PERMISSION_READ_PRODUCT);
+        }
+        return product;
+    }
 
     @Transactional
     public Product save(final Long shopOwnerId, final ProductRequest request) {

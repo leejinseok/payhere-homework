@@ -20,6 +20,22 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductResponse>> getProduct(
+            @PathVariable final Long productId,
+            @AuthenticationPrincipal final MemberContext memberContext
+    ) {
+        Product product = productService.findOne(memberContext.getId(), productId);
+        ApiResponse<ProductResponse> body = new ApiResponse<>(
+                HttpStatus.OK,
+                ProductResponse.from(product)
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(body);
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> saveProduct(
             @RequestBody @Valid final ProductRequest request,
@@ -49,6 +65,17 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(
+            @PathVariable final Long productId,
+            @AuthenticationPrincipal final MemberContext memberContext
+    ) {
+        productService.delete(memberContext.getId(), productId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
 

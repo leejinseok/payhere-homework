@@ -24,11 +24,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {ProductController.class})
 @Import({ApiSecurityConfig.class, JwtConfig.class})
@@ -46,14 +46,14 @@ class ProductControllerTest {
     @MockBean
     ProductService productService;
 
-    ShopOwner sampleShopOwner() {
+    public ShopOwner sampleShopOwner() {
         return ShopOwner.builder()
                 .id(1L)
                 .phoneNumber("01022223333")
                 .build();
     }
 
-    ProductRequest sampleSaveRequest() {
+    public ProductRequest sampleSaveRequest() {
         return ProductRequest.of(
                 "에스프레소",
                 ProductCategory.COFFEE,
@@ -66,7 +66,7 @@ class ProductControllerTest {
         );
     }
 
-    Product sampleProduct() {
+    public Product sampleProduct() {
         Product build = Product.builder()
                 .id(1L)
                 .name("에스프레소")
@@ -83,6 +83,35 @@ class ProductControllerTest {
         build.setCreatedAt(LocalDateTime.now());
         build.setLastModifiedAt(LocalDateTime.now());
         return build;
+    }
+
+    @Test
+    void 상품조회() throws Exception {
+        Product product = sampleProduct();
+        when(productService.findOne(any(), any())).thenReturn(product);
+
+        ShopOwner shopOwner = sampleShopOwner();
+        String token = jwtProvider.createToken(shopOwner);
+
+        mockMvc.perform(
+                        get("/api/v1/products/" + product.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + token)
+                ).andDo(print())
+                .andExpect(jsonPath("$.meta.code").value(HttpStatus.OK.value()))
+                .andExpect(jsonPath("$.meta.message").value(HttpStatus.OK.name()))
+                .andExpect(jsonPath("$.data.id").value(product.getId()))
+                .andExpect(jsonPath("$.data.name").value(product.getName()))
+                .andExpect(jsonPath("$.data.category").value(product.getCategory().name()))
+                .andExpect(jsonPath("$.data.price").value(product.getPrice()))
+                .andExpect(jsonPath("$.data.costPrice").value(product.getCostPrice()))
+                .andExpect(jsonPath("$.data.description").value(product.getDescription()))
+                .andExpect(jsonPath("$.data.barcode").value(product.getBarcode()))
+                .andExpect(jsonPath("$.data.expiryDate").exists())
+                .andExpect(jsonPath("$.data.size").value(product.getSize().name()))
+                .andExpect(jsonPath("$.data.shopOwner.id").value(product.getShopOwner().getId()))
+                .andExpect(jsonPath("$.data.createdAt").exists())
+                .andExpect(jsonPath("$.data.lastModifiedAt").exists());
     }
 
     @Test
@@ -164,6 +193,23 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data.shopOwner.id").value(product.getShopOwner().getId()))
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.lastModifiedAt").exists());
+    }
+
+    @Test
+    void 상품삭제() throws Exception {
+        ShopOwner shopOwner = sampleShopOwner();
+        String token = jwtProvider.createToken(shopOwner);
+
+        mockMvc.perform(
+                        delete("/api/v1/products/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + token)
+                )
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).delete(any(), any());
+
     }
 
 }
