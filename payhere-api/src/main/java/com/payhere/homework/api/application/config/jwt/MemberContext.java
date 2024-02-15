@@ -14,14 +14,10 @@ import java.util.List;
 public class MemberContext implements UserDetails {
 
     private Long id;
-    private String userId;
-    private String name;
     private List<SimpleGrantedAuthority> authorities;
 
-    public MemberContext(final Long id, final String userId, final String name, final List<SimpleGrantedAuthority> authorities) {
+    public MemberContext(final Long id, final List<SimpleGrantedAuthority> authorities) {
         this.id = id;
-        this.userId = userId;
-        this.name = name;
         this.authorities = authorities;
     }
 
@@ -37,7 +33,7 @@ public class MemberContext implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userId;
+        return null;
     }
 
     @Override

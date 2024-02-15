@@ -54,9 +54,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         roles.add(new SimpleGrantedAuthority("ROLE_" + role));
 
         Long id = Long.valueOf(body.getSubject());
-        String userId = body.get("userId", String.class);
         String name = body.get("name", String.class);
-        MemberContext memberContextMapper = new MemberContext(id, userId, name, roles.stream().toList());
+        MemberContext memberContextMapper = new MemberContext(id, roles.stream().toList());
 
         return new JwtAuthentication(memberContextMapper, token, roles);
     }

@@ -47,7 +47,7 @@ public class AuthController {
         String refreshToken = jwtProvider.createRefreshToken(shopOwner);
         TokenResponse tokenResponse = TokenResponse.of(accessToken, refreshToken);
 
-        ShopOwnerResponse memberResponse = ShopOwnerResponse.create(shopOwner);
+        ShopOwnerResponse memberResponse = ShopOwnerResponse.from(shopOwner);
         LoginResponse loginResponse = LoginResponse.of(memberResponse, tokenResponse);
 
         ApiResponse<LoginResponse> body = new ApiResponse<>(

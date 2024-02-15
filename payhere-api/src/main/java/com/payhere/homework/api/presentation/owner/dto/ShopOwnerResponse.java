@@ -14,7 +14,7 @@ public class ShopOwnerResponse extends AuditingResponse {
     @Schema(example = "01011112222")
     private String phoneNumber;
 
-    public static ShopOwnerResponse create(final ShopOwner shopOwner) {
+    public static ShopOwnerResponse from(final ShopOwner shopOwner) {
         ShopOwnerResponse response = new ShopOwnerResponse();
         response.id = shopOwner.getId();
         response.phoneNumber = shopOwner.getPhoneNumber();
