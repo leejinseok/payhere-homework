@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -87,6 +90,40 @@ class ProductControllerTest {
 
     @Test
     void 상품조회() throws Exception {
+        Product product = sampleProduct();
+        PageImpl<Product> products = new PageImpl<>(
+                List.of(product),
+                PageRequest.of(0, 10),
+                1
+        );
+
+        when(productService.findPage(any(), any(), any())).thenReturn(products);
+
+        ShopOwner shopOwner = sampleShopOwner();
+        String token = jwtProvider.createToken(shopOwner);
+
+        mockMvc.perform(
+                        get("/api/v1/products")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + token)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.meta.code").value(HttpStatus.OK.value()))
+                .andExpect(jsonPath("$.meta.message").value(HttpStatus.OK.name()))
+                .andExpect(jsonPath("$.data.pageInfo.currentPage").exists())
+                .andExpect(jsonPath("$.data.pageInfo.totalPages").exists())
+                .andExpect(jsonPath("$.data.pageInfo.size").exists())
+                .andExpect(jsonPath("$.data.pageInfo.totalElements").exists())
+                .andExpect(jsonPath("$.data.pageInfo.sort").exists())
+                .andExpect(jsonPath("$.data.pageInfo.last").exists())
+                .andExpect(jsonPath("$.data.list[0]").exists());
+    }
+
+    @Test
+    void 상품조회_단건() throws Exception {
         Product product = sampleProduct();
         when(productService.findOne(any(), any())).thenReturn(product);
 

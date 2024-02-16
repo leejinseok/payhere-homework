@@ -32,6 +32,9 @@ public class Product extends AuditingDomain {
     private String name;
 
     @Column
+    private String nameInitials;
+
+    @Column
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
 

@@ -4,14 +4,14 @@ import com.payhere.homework.api.application.exception.DuplicateException;
 import com.payhere.homework.api.application.exception.NoPermissionException;
 import com.payhere.homework.api.application.exception.NotFoundException;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
+import com.payhere.homework.api.application.util.HangulUtil;
 import com.payhere.homework.api.presentation.product.dto.ProductRequest;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import com.payhere.homework.core.db.domain.owner.ShopOwnerRepository;
-import com.payhere.homework.core.db.domain.product.Product;
-import com.payhere.homework.core.db.domain.product.ProductCategory;
-import com.payhere.homework.core.db.domain.product.ProductRepository;
-import com.payhere.homework.core.db.domain.product.ProductSize;
+import com.payhere.homework.core.db.domain.product.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +25,7 @@ import static com.payhere.homework.api.application.constants.ExceptionConstants.
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductQueryDslRepository productQueryDslRepository;
     private final ShopOwnerRepository shopOwnerRepository;
 
     @Transactional(readOnly = true)
@@ -36,14 +37,29 @@ public class ProductService {
         return product;
     }
 
+    @Transactional(readOnly = true)
+    public Page<Product> findPage(final Long shopOwnerId, final String productName, final Pageable pageable) {
+        return productQueryDslRepository.findPage(shopOwnerId, productName, pageable);
+    }
+
     @Transactional
     public Product save(final Long shopOwnerId, final ProductRequest request) {
         ShopOwner shopOwner = shopOwnerRepository.findById(shopOwnerId).orElseThrow(() -> {
             throw new NotFoundException(NOT_EXIST_SHOP_OWNER);
         });
 
+
+        StringBuilder nameInitialBuilder = new StringBuilder();
+        String name = request.getName();
+        String[] split = name.split("");
+        for (String each : split) {
+            char[] character = HangulUtil.splitHangul(each.toCharArray()[0]);
+            nameInitialBuilder.append(character[0]);
+        }
+
         Product newProduct = Product.builder()
                 .name(request.getName())
+                .nameInitials(nameInitialBuilder.toString())
                 .expiryDate(request.getExpiryDate())
                 .barcode(request.getBarcode())
                 .price(request.getPrice())

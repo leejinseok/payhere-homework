@@ -6,6 +6,7 @@ import com.payhere.homework.api.presentation.auth.dto.*;
 import com.payhere.homework.api.presentation.common.dto.ApiResponse;
 import com.payhere.homework.api.presentation.owner.dto.ShopOwnerResponse;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtProvider jwtProvider;
 
+    @Operation(description = "회원가입", summary = "회원가입")
     @PostMapping("/shop-owner/sign-up")
     public ResponseEntity<ApiResponse<SignUpResponse>> signUp(@RequestBody @Valid final SignUpRequest request) {
         ShopOwner shopOwner = authService.signUp(request);
@@ -39,6 +41,7 @@ public class AuthController {
                 .body(response);
     }
 
+    @Operation(description = "로그인", summary = "로그인")
     @PostMapping("/shop-owner/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid final LoginRequest request) {
         ShopOwner shopOwner = authService.login(request);

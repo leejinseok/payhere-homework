@@ -1,13 +1,16 @@
 package com.payhere.homework.core.db.domain.product;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.List;
 
+import static com.payhere.homework.core.db.domain.owner.QShopOwner.shopOwner;
 import static com.payhere.homework.core.db.domain.product.QProduct.product;
 
 @Repository
@@ -16,53 +19,31 @@ public class ProductQueryDslRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public long update(
-            final Long productId,
-            final String name,
-            final ProductCategory category,
-            final BigDecimal price,
-            final BigDecimal costPrice,
-            final String description,
-            final String barcode,
-            final LocalDate expiryDate,
-            final ProductSize size
-    ) {
+    public Page<Product> findPage(final Long shopOwnerId, final String productName, final Pageable pageable) {
+        BooleanExpression where = product.shopOwner.id.eq(shopOwnerId);
 
-        JPAUpdateClause update = jpaQueryFactory.update(product);
-
-        if (name != null) {
-            update.set(product.name, name);
-        }
-        if (category != null) {
-            update.set(product.category, category);
+        if (productName != null) {
+            where.and(product.name.contains(productName));
+            where.or(product.nameInitials.contains(productName));
         }
 
-        if (price != null) {
-            update.set(product.price, price);
-        }
+        List<Product> fetch = jpaQueryFactory
+                .select(product)
+                .from(product)
+                .join(product.shopOwner, shopOwner).fetchJoin()
+                .where(where)
+                .orderBy(product.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
-        if (costPrice != null) {
-            update.set(product.costPrice, costPrice);
-        }
+        long count = jpaQueryFactory
+                .select(product.count())
+                .from(product)
+                .where(where)
+                .fetchOne();
 
-        if (description != null) {
-            update.set(product.description, description);
-        }
-
-        if (barcode != null) {
-            update.set(product.barcode, barcode);
-        }
-
-        if (expiryDate != null) {
-            update.set(product.expiryDate, expiryDate);
-        }
-
-        if (size != null) {
-            update.set(product.size, size);
-        }
-
-        update.where(product.id.eq(productId));
-        return update.execute();
+        return new PageImpl<>(fetch, pageable, count);
     }
 
 }
