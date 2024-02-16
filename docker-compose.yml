@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  database:
+    container_name: mysql-db-container
+    image: mysql/mysql-server:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: payhere
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: root
+      TZ: 'Asia/Seoul'
+    ports:
+      - "3306:3306"
+    command:
+      - "mysqld"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    networks:
+      - payhere-network
+
+  application:
+    container_name: payhere-api-container
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db-container:3306/payhere
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+    depends_on:
+      - database
+    networks:
+      - payhere-network
+
+networks:
+  payhere-network:
