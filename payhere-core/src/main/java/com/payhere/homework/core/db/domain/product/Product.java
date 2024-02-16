@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Table(
         name = "product",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"barcode"})
+                @UniqueConstraint(columnNames = {"barcode"}, name = "product_uk_1")
         }
 )
 @Builder

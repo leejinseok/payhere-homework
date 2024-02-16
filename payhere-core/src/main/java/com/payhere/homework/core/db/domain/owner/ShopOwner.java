@@ -9,6 +9,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Table(
+        name = "shop_owner",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"phoneNumber"}, name = "shop_owner_uk_1")
+        }
+)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
