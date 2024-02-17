@@ -16,21 +16,21 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class ApiCacheConfig {
 
-    public static final String SAMPLE_CACHE = "sample";
+    public static final String PRODUCT_CACHE = "product";
 
     @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         List<CaffeineCache> caches = new ArrayList<>();
-        caches.add(scrapCache());
+        caches.add(productCache());
         cacheManager.setCaches(caches);
         return cacheManager;
     }
 
-    private CaffeineCache scrapCache() {
-        return new CaffeineCache(SAMPLE_CACHE, Caffeine.newBuilder().recordStats()
-                .expireAfterWrite(30, TimeUnit.SECONDS)
-                .maximumSize(100)
+    private CaffeineCache productCache() {
+        return new CaffeineCache(PRODUCT_CACHE, Caffeine.newBuilder().recordStats()
+                .expireAfterWrite(1, TimeUnit.HOURS)
+                .maximumSize(1000)
                 .build());
     }
 

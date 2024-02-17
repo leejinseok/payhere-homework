@@ -134,6 +134,12 @@ Test Cases
 - logback
 - docker
 
+## 🧩 Caching Strategy
+
+상품 단건 조회의 경우 캐싱을 활용하였습니다.
+상품정보 등록할때 그리고 상품정보를 수정할때 캐싱이 등록, 수정되고
+상품정보를 삭제할때는 캐싱도 함께 삭제되도록 처리하였습니다.
+
 ## 🙏 Test Application
 
 도커 환경에서 어플리케이션 테스트
@@ -171,3 +177,4 @@ chmod +x start.sh
 - [x] swagger 작성
 - [x] 도커 생성
 - [x] 도커로 실행
+- [x] 상품 단건 정보 캐싱

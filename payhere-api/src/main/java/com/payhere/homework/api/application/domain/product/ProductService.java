@@ -10,6 +10,9 @@ import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import com.payhere.homework.core.db.domain.owner.ShopOwnerRepository;
 import com.payhere.homework.core.db.domain.product.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static com.payhere.homework.api.application.config.ApiCacheConfig.PRODUCT_CACHE;
 import static com.payhere.homework.api.application.constants.ExceptionConstants.*;
 
 @Service
@@ -28,6 +32,9 @@ public class ProductService {
     private final ProductQueryDslRepository productQueryDslRepository;
     private final ShopOwnerRepository shopOwnerRepository;
 
+    private final CacheManager cacheManager;
+
+    @Cacheable(value = PRODUCT_CACHE, key = "#shopOwnerId + ':' + #productId")
     @Transactional(readOnly = true)
     public Product findOne(final Long shopOwnerId, final Long productId) {
         Product product = findById(productId);
@@ -47,7 +54,6 @@ public class ProductService {
         ShopOwner shopOwner = shopOwnerRepository.findById(shopOwnerId).orElseThrow(() -> {
             throw new NotFoundException(NOT_EXIST_SHOP_OWNER);
         });
-
 
         StringBuilder nameInitialBuilder = new StringBuilder();
         String name = request.getName();
@@ -74,7 +80,16 @@ public class ProductService {
             throw new DuplicateException(ALREADY_EXIST_PRODUCT);
         }
 
+        saveProductCache(shopOwnerId, newProduct);
+
         return productRepository.save(newProduct);
+    }
+
+    private void saveProductCache(final Long showOwnerId, final Product product) {
+        Cache cache = cacheManager.getCache(PRODUCT_CACHE);
+        if (cache != null) {
+            cache.put(showOwnerId + ":" + product.getId(), product);
+        }
     }
 
     public Product findById(final Long productId) {
@@ -135,6 +150,8 @@ public class ProductService {
             product.updateExpiryDate(expiryDate);
         }
 
+        saveProductCache(shopOwnerId, product);
+
         return product;
     }
 
@@ -145,7 +162,15 @@ public class ProductService {
             throw new UnauthorizedException(DO_NOT_HAVE_DELETE_PRODUCT_PERMISSION);
         }
 
+        deleteProductCache(shopOwnerId, productId);
         productRepository.delete(product);
+    }
+
+    private void deleteProductCache(final Long shopOwnerId, final Long productId) {
+        Cache cache = cacheManager.getCache(PRODUCT_CACHE);
+        if (cache != null) {
+            cache.evict(shopOwnerId + ":" + productId);
+        }
     }
 
     private boolean barcodeDuplicateCheck(final String barcode) {

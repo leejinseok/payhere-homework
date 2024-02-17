@@ -1,5 +1,6 @@
 package com.payhere.homework.api.application.domain.product;
 
+import com.payhere.homework.api.application.config.ApiCacheConfig;
 import com.payhere.homework.api.application.config.ApiDbConfig;
 import com.payhere.homework.api.application.exception.NotFoundException;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
@@ -11,6 +12,7 @@ import com.payhere.homework.core.db.domain.product.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles({"test"})
 @DataJpaTest
-@Import({ApiDbConfig.class})
+@Import({ApiDbConfig.class, ApiCacheConfig.class})
 class ProductServiceTest {
 
     @Autowired
@@ -36,7 +38,10 @@ class ProductServiceTest {
     @Autowired
     ShopOwnerRepository shopOwnerRepository;
 
-    public ShopOwner createSampleShopOwner() {
+    @Autowired
+    CacheManager cacheManager;
+
+    ShopOwner createSampleShopOwner() {
         return shopOwnerRepository.save(
                 ShopOwner.builder()
                         .phoneNumber("01022223333")
@@ -45,7 +50,7 @@ class ProductServiceTest {
         );
     }
 
-    public ProductRequest createSampleProductRequest() {
+    ProductRequest createSampleProductRequest() {
         return ProductRequest.of(
                 "에스프레소",
                 ProductCategory.COFFEE,
@@ -58,12 +63,16 @@ class ProductServiceTest {
         );
     }
 
+    ProductService createProductService() {
+        return new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository, cacheManager);
+    }
+
     @Test
     void 상품조회_단건() {
         ShopOwner shopOwner = createSampleShopOwner();
         ProductRequest productRequest = createSampleProductRequest();
 
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
         Product save = productService.save(shopOwner.getId(), productRequest);
 
         Product product = productService.findOne(shopOwner.getId(), save.getId());
@@ -80,7 +89,7 @@ class ProductServiceTest {
     void 상품조회_페이지() {
         ShopOwner shopOwner = createSampleShopOwner();
         ProductRequest productRequest = createSampleProductRequest();
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
         Product save = productService.save(shopOwner.getId(), productRequest);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -99,7 +108,7 @@ class ProductServiceTest {
     @Test
     void 상품등록() {
         ShopOwner shopOwner = createSampleShopOwner();
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",
                 ProductCategory.COFFEE,
@@ -127,7 +136,7 @@ class ProductServiceTest {
     void 상품수정() {
         ShopOwner shopOwner = createSampleShopOwner();
 
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",
                 ProductCategory.COFFEE,
@@ -163,7 +172,7 @@ class ProductServiceTest {
     @Test
     void 상품수정_실패_권한없음() {
         ShopOwner shopOwner = createSampleShopOwner();
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
 
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",
@@ -196,7 +205,7 @@ class ProductServiceTest {
     @Test
     void 상품삭제() {
         ShopOwner shopOwner = createSampleShopOwner();
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
 
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",
@@ -220,7 +229,7 @@ class ProductServiceTest {
     @Test
     void 상품삭제_실패_권한없음() {
         ShopOwner shopOwner = createSampleShopOwner();
-        ProductService productService = new ProductService(productRepository, productQueryDslRepository, shopOwnerRepository);
+        ProductService productService = createProductService();
 
         ProductRequest saveRequest = ProductRequest.of(
                 "에스프레소",

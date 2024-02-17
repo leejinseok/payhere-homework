@@ -35,7 +35,6 @@ public class ProductController {
             @Parameter(name = "size", example = "10") final int size,
             @AuthenticationPrincipal final MemberContext memberContext
     ) {
-
         Page<Product> productPage = productService.findPage(memberContext.getId(), productName, PageRequest.of(page, size));
         Page<ProductResponse> productResponsePage = productPage.map(ProductResponse::from);
 
