@@ -124,6 +124,18 @@ class ProductControllerTest {
     }
 
     @Test
+    void 상품조회_실패_로그인하지않은_사용자() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/products")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void 상품조회_단건() throws Exception {
         Product product = sampleProduct();
         when(productService.findOne(any(), any())).thenReturn(product);
@@ -135,7 +147,9 @@ class ProductControllerTest {
                         get("/api/v1/products/" + product.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + token)
-                ).andDo(print())
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meta.code").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.meta.message").value(HttpStatus.OK.name()))
                 .andExpect(jsonPath("$.data.id").value(product.getId()))
@@ -150,6 +164,16 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data.shopOwner.id").value(product.getShopOwner().getId()))
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.lastModifiedAt").exists());
+    }
+
+    @Test
+    void 상품조회_단건_실패_로그인하지않은_사용자() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/products/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -182,7 +206,9 @@ class ProductControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(content)
                                 .header("Authorization", "Bearer " + token)
-                ).andDo(print())
+                )
+                .andDo(print())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.meta.code").value(HttpStatus.CREATED.value()))
                 .andExpect(jsonPath("$.meta.message").value(HttpStatus.CREATED.name()))
                 .andExpect(jsonPath("$.data.id").value(product.getId()))
@@ -197,6 +223,16 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data.shopOwner.id").value(product.getShopOwner().getId()))
                 .andExpect(jsonPath("$.data.createdAt").exists())
                 .andExpect(jsonPath("$.data.lastModifiedAt").exists());
+    }
+
+    @Test
+    void 상품등록_실패_로그인하지않은_사용자() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -217,6 +253,7 @@ class ProductControllerTest {
                                 .header("Authorization", "Bearer " + token)
                 )
                 .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meta.code").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.meta.message").value(HttpStatus.OK.name()))
                 .andExpect(jsonPath("$.data.id").value(product.getId()))
@@ -234,6 +271,21 @@ class ProductControllerTest {
     }
 
     @Test
+    void 상품수정_실패_로그인하지않은_사용자() throws Exception {
+        ProductRequest request = new ProductRequest();
+        byte[] content = objectMapper.writeValueAsBytes(request);
+
+        mockMvc.perform(
+                        patch("/api/v1/products/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(content)
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
+
+    }
+
+    @Test
     void 상품삭제() throws Exception {
         ShopOwner shopOwner = sampleShopOwner();
         String token = jwtProvider.createToken(shopOwner);
@@ -247,7 +299,15 @@ class ProductControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(productService, times(1)).delete(any(), any());
-
     }
 
+    @Test
+    void 상품삭제_실패_로그인하지않은_사용자() throws Exception {
+        mockMvc.perform(
+                        delete("/api/v1/products/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isForbidden());
+    }
 }
