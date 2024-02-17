@@ -2,8 +2,8 @@ package com.payhere.homework.api.application.domain.auth;
 
 import com.payhere.homework.api.application.config.ApiDbConfig;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
-import com.payhere.homework.api.presentation.auth.dto.LoginRequest;
-import com.payhere.homework.api.presentation.auth.dto.SignUpRequest;
+import com.payhere.homework.api.presentation.domain.auth.dto.LoginRequest;
+import com.payhere.homework.api.presentation.domain.auth.dto.SignUpRequest;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import com.payhere.homework.core.db.domain.owner.ShopOwnerRepository;
 import org.junit.jupiter.api.Test;

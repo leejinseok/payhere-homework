@@ -1,4 +1,4 @@
-package com.payhere.homework.api.presentation.product.dto;
+package com.payhere.homework.api.presentation.domain.product.dto;
 
 import com.payhere.homework.core.db.domain.product.ProductCategory;
 import com.payhere.homework.core.db.domain.product.ProductSize;

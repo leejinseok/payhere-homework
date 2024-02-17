@@ -5,7 +5,7 @@ import com.payhere.homework.api.application.exception.NoPermissionException;
 import com.payhere.homework.api.application.exception.NotFoundException;
 import com.payhere.homework.api.application.exception.UnauthorizedException;
 import com.payhere.homework.api.application.util.HangulUtil;
-import com.payhere.homework.api.presentation.product.dto.ProductRequest;
+import com.payhere.homework.api.presentation.domain.product.dto.ProductRequest;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import com.payhere.homework.core.db.domain.owner.ShopOwnerRepository;
 import com.payhere.homework.core.db.domain.product.*;

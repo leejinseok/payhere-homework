@@ -1,6 +1,6 @@
-package com.payhere.homework.api.presentation.auth.dto;
+package com.payhere.homework.api.presentation.domain.auth.dto;
 
-import com.payhere.homework.api.presentation.owner.dto.ShopOwnerResponse;
+import com.payhere.homework.api.presentation.domain.dto.ShopOwnerResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package com.payhere.homework.api.presentation.auth.dto;
+package com.payhere.homework.api.presentation.domain.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

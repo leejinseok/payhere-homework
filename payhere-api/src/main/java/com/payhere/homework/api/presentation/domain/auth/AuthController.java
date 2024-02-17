@@ -1,10 +1,10 @@
-package com.payhere.homework.api.presentation.auth;
+package com.payhere.homework.api.presentation.domain.auth;
 
 import com.payhere.homework.api.application.config.jwt.JwtProvider;
 import com.payhere.homework.api.application.domain.auth.AuthService;
-import com.payhere.homework.api.presentation.auth.dto.*;
 import com.payhere.homework.api.presentation.common.dto.ApiResponse;
-import com.payhere.homework.api.presentation.owner.dto.ShopOwnerResponse;
+import com.payhere.homework.api.presentation.domain.auth.dto.*;
+import com.payhere.homework.api.presentation.domain.dto.ShopOwnerResponse;
 import com.payhere.homework.core.db.domain.owner.ShopOwner;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

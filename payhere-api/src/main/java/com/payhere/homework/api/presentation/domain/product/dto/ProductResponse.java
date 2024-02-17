@@ -1,6 +1,6 @@
-package com.payhere.homework.api.presentation.product.dto;
+package com.payhere.homework.api.presentation.domain.product.dto;
 
-import com.payhere.homework.api.presentation.owner.dto.ShopOwnerResponse;
+import com.payhere.homework.api.presentation.domain.dto.ShopOwnerResponse;
 import com.payhere.homework.core.db.audit.AuditingDomain;
 import com.payhere.homework.core.db.domain.product.Product;
 import com.payhere.homework.core.db.domain.product.ProductCategory;

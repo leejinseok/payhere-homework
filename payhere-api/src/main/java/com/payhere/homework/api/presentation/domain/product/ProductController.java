@@ -1,11 +1,11 @@
-package com.payhere.homework.api.presentation.product;
+package com.payhere.homework.api.presentation.domain.product;
 
 import com.payhere.homework.api.application.config.jwt.MemberContext;
 import com.payhere.homework.api.application.domain.product.ProductService;
 import com.payhere.homework.api.presentation.common.dto.ApiResponse;
 import com.payhere.homework.api.presentation.common.dto.PageResponse;
-import com.payhere.homework.api.presentation.product.dto.ProductRequest;
-import com.payhere.homework.api.presentation.product.dto.ProductResponse;
+import com.payhere.homework.api.presentation.domain.product.dto.ProductRequest;
+import com.payhere.homework.api.presentation.domain.product.dto.ProductResponse;
 import com.payhere.homework.core.db.domain.product.Product;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
