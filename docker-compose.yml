@@ -21,16 +21,12 @@ services:
 
   application:
     container_name: payhere-api-container
-    restart: always
+    restart: no
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db-container:3306/payhere
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "root"
     depends_on:
       - database
     networks:
