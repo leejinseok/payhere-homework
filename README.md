@@ -117,6 +117,15 @@ Test Cases
 - logback
 - docker
 
+
+## 🏃 Run Application
+
+도커로 어플리케이션 실행
+
+```shell
+./start.sh
+```
+
 ## 👷 TODO
 
 - [x] 사장님 엔티티 생성
