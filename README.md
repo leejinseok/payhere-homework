@@ -33,13 +33,13 @@ spring security를 적용하였고 jwt로 사용자를 인증하는 방식으로
 **멀티 모듈**
 
 프로젝트 모듈을 core와 api로 나누어 느슨하게 결합되도록 의도하였습니다.
-만약에 해당 프로젝트에 batch 같은 모듈이 추가되었다고 가정할때 해당 batch 프로젝트에서는 core에서 db, web중 필요한 부분만 import해서 사용할 수 있습니다.
+만약에 해당 프로젝트에 batch 같은 모듈이 추가되었다고 가정할때 해당 batch 프로젝트에서는 core에서 필요한 부분만 import해서 사용할 수 있습니다.
 <br><br>
 
 **예외 처리**
 
 예외처리를 적절하게 하여 api에서 해당 예외에 맞는 응답을 줄 수 있도록 advice controller를 활용하였습니다.
-Duplication, NotFound, BadRequest등 커스텀 예외 처리를 추가하여 핸들링 할 수 있도록 했습니다.
+NotFound, NoPermission 등 커스텀 예외 처리를 추가하여 핸들링 할 수 있도록 했습니다.
 <br><br>
 
 **데이터**
@@ -47,7 +47,12 @@ Duplication, NotFound, BadRequest등 커스텀 예외 처리를 추가하여 핸
 java진영의 ORM인 jpa를 사용하였습니다. DB는 요구사항에 맞게 mysql5.7를 사용하였습니다. <br><br>
 
 **Docker**
+
 도커를 활용할 수 있도록 Dockerfile, docker-compose.yml파일을 작성하였습니다.
+이미지는 어플리케이션 실행에 용이한 방식으로 ubuntu:18.04 이미지에 java 등등 필요한 패키지들을 설치한 뒤에 제 개인 docker hub에 올려놓았고
+그 이미지를 사용하였습니다
+
+링크: https://hub.docker.com/repository/docker/sonaky47/payhere-homework/general
 
 **테스트 지원**
 
@@ -102,6 +107,13 @@ Test Cases
 - 상품수정
 - 상품삭제
 - 한글초성추출
+
+### Core (payhere-core)
+**DB**
+
+- ShopOwner
+- Product
+
 
 ## 🎢 Tech Stack
 
