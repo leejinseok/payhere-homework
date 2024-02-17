@@ -1,0 +1,9 @@
+FROM sonaky47/payhere-homework
+WORKDIR /app
+COPY . /app
+ENV LC_ALL=C.UTF-8
+RUN whoami
+RUN locale
+RUN java -version
+RUN ./gradlew :payhere-api:clean
+CMD ["./gradlew", ":payhere-api:test"]

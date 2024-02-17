@@ -54,7 +54,7 @@ java진영의 ORM인 jpa를 사용하였습니다. DB는 요구사항에 맞게 
 
 링크: https://hub.docker.com/repository/docker/sonaky47/payhere-homework/general
 
-**테스트 지원**
+**swagger**
 
 swagger doc을 사용하여 api를 사용하기 쉽게 공개하였습니다.
 어플리케이션을 구동시킨 이후 아래의 url로 접속하면 swagger를 사용할 수 있습니다.
@@ -109,11 +109,11 @@ Test Cases
 - 한글초성추출
 
 ### Core (payhere-core)
+
 **DB**
 
 - ShopOwner
 - Product
-
 
 ## 🎢 Tech Stack
 
@@ -129,12 +129,23 @@ Test Cases
 - logback
 - docker
 
+## 🙏 Test Application
+
+도커 환경에서 어플리케이션 테스트
+
+```shell
+chmod +x test.sh
+./test.sh
+```
+
+![](docs/test.png)
 
 ## 🏃 Run Application
 
-도커로 어플리케이션 실행
+도커 환경에서 어플리케이션 실행
 
 ```shell
+chmod +x start.sh
 ./start.sh
 ```
 
